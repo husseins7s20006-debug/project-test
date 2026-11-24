@@ -1,0 +1,259 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday - اخويا احمد صقر</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            text-align: center;
+        }
+
+        #matrixCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .intro-container {
+            position: relative;
+            z-index: 10;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #intro-text {
+            font-size: 80px;
+            font-weight: 900;
+            color: #ff0055;
+            text-shadow: 0 0 25px #ff0055, 0 0 50px #ff0055, 0 0 100px #ff0055;
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            100% { transform: scale(1.05); opacity: 1; }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #main-content {
+            position: relative;
+            z-index: 10;
+            padding: 20px;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .title {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #ff3377;
+            text-shadow: 0 0 10px #ff0055;
+        }
+
+        .book-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+        }
+
+        .book {
+            width: 90%;
+            max-width: 650px;
+            height: 420px;
+            background: #111;
+            border: 2px solid #ff0055;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(255, 0, 85, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page {
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        .page img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .controls {
+            margin-top: 15px;
+        }
+
+        .btn {
+            background-color: #ff0055;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 0 10px #ff0055;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #ff3377;
+            box-shadow: 0 0 20px #ff3377;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="matrixCanvas"></canvas>
+
+    <div id="intro" class="intro-container">
+        <div id="intro-text">3</div>
+    </div>
+
+    <div id="main-content" class="hidden">
+        <h1 class="title">✨ ألبوم الذكريات الجميل ✨</h1>
+        
+        <div class="controls">
+            <button class="btn" onclick="toggleMusic()">🎵 تشغيل الموسيقى</button>
+        </div>
+
+        <div class="book-container">
+            <div class="book" id="photoBook">
+                <div class="page active"><img src="1.jpg" alt="صورة 1"></div>
+                <div class="page"><img src="صقر.jpeg" alt="صورة 2"></div>
+                <div class="page"><img src="صقر 2.jpeg" alt="صورة 3"></div>
+                <div class="page"><img src="صقر 4.jpeg" alt="صورة 4"></div>
+                <div class="page"><img src=".jpeg" alt="صورة 5"></div>
+                <div class="page"><img src="صقر 5.jpeg" alt="صورة 6"></div>
+                <div class="page"><img src="WhatsApp Image 2026-10-08 at 1.15.37 AM (3).jpeg" alt="صورة 7"></div>
+                <div class="page"><img src="WhatsApp Image 2026-10-08 at 1.15.37 AM.jpeg" alt="صورة 8"></div>
+                <div class="page"><img src="صقر 6.jpeg - Shortcut" alt="صورة 9"></div>
+                <div class="page"><img src="WhatsApp Image 2026-10-08 at 1.15.36 AM.jpeg" alt="صورة 10"></div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" onclick="prevPage()">السابق ⬅️</button>
+            <button class="btn" onclick="nextPage()">➡️ التالي</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*❤️';
+        const fontSize = 16;
+        const columns = Math.floor(canvas.width / fontSize);
+        const drops = Array(columns).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#ff0055';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars.charAt(Math.floor(Math.random() * chars.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 33);
+
+        const introSteps = ["3", "2", "1", "HAPPY", "BIRTHDAY", "TO YOU", "AHMED ", "❤️"];
+        let currentStep = 0;
+        const introText = document.getElementById('intro-text');
+        const introDiv = document.getElementById('intro');
+        const mainContent = document.getElementById('main-content');
+
+        const introTimer = setInterval(() => {
+            currentStep++;
+            if (currentStep < introSteps.length) {
+                introText.innerHTML = introSteps[currentStep];
+            } else {
+                clearInterval(introTimer);
+                introDiv.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+            }
+        }, 1000);
+
+        let pageIndex = 0;
+        const pages = document.querySelectorAll('.page');
+
+        function showPage(index) {
+            pages.forEach((page, i) => {
+                page.classList.remove('active');
+                if (i === index) {
+                    page.classList.add('active');
+                }
+            });
+        }
+
+        function nextPage() {
+            pageIndex = (pageIndex + 1) % pages.length;
+            showPage(pageIndex);
+        }
+
+        function prevPage() {
+            pageIndex = (pageIndex - 1 + pages.length) % pages.length;
+            showPage(pageIndex);
+        }
+
+        function toggleMusic() {
+            alert("كل سنة.mp4");
+        }
+    </script>
+</body>
+</html>
